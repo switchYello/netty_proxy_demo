@@ -1,9 +1,7 @@
 package com.handlers;
 
 import com.utils.ChannelUtil;
-import com.utils.SuccessFutureListener;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -39,27 +37,21 @@ public class TransferHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(final ChannelHandlerContext ctx, Object msg) {
-        boolean release = true;
-        try {
-            if (outChannel.isActive()) {
-                ChannelFuture writeFuture = outChannel.writeAndFlush(msg);
-                //如果不是自动read，则手动read
-                if (!autoRead) {
-                    writeFuture.addListener(new SuccessFutureListener<Void>() {
-                        @Override
-                        public void operationComplete0(Void v) {
-                            ctx.read();
-                        }
-                    });
-                }
-                release = false;
-            }
-        } finally {
-            if (release) {
-                ReferenceCountUtil.release(msg);
-            }
+    public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
+        if (!outChannel.isActive()) {
+            ReferenceCountUtil.release(msg);
         }
+        outChannel.writeAndFlush(msg).addListener(future -> {
+            if (!future.isSuccess()) {
+                ReferenceCountUtil.release(msg);
+                ctx.close();
+                outChannel.close();
+            }
+            //不是自动读取，则需要手动读取一次
+            if (!autoRead) {
+                ctx.read();
+            }
+        });
     }
 
     @Override

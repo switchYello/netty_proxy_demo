@@ -4,7 +4,14 @@ import com.dns.AsnycDns;
 import com.handlers.TimeoutHandler;
 import com.handlers.TransferHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
@@ -28,17 +35,14 @@ public class ForwarderService extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
         ChannelFuture promise = createPromise(InetSocketAddress.createUnresolved(remoteHost, remotePort), ctx);
-        promise.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) {
-                if (future.isSuccess()) {
-                    log.debug("Forwarder客户端请求连接到服务器 {}:{}", remoteHost, remotePort);
-                    ctx.pipeline().replace(ctx.name(), null, new TransferHandler(future.channel()));
-                    ctx.channel().config().setAutoRead(true);
-                } else {
-                    log.debug("Forwarder连接服务器失败:", future.cause());
-                    ctx.close();
-                }
+        promise.addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+                log.debug("Forwarder客户端请求连接到服务器 {}:{}", remoteHost, remotePort);
+                ctx.pipeline().replace(ctx.name(), null, new TransferHandler(future.channel()));
+                ctx.channel().config().setAutoRead(true);
+            } else {
+                log.debug("Forwarder连接服务器失败:", future.cause());
+                ctx.close();
             }
         });
     }

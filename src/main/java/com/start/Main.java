@@ -28,15 +28,9 @@ public class Main {
     static void testForwardProxy() {
         String localHost = "127.0.0.1";
         int localPort = 1080;
-
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_RCVBUF, 128 * 1024)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 6000)
-                .childOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 6000)
-                .childOption(ChannelOption.SO_RCVBUF, 128 * 1024)
-                .childOption(ChannelOption.SO_LINGER, 1)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.AUTO_READ, false)
                 .childHandler(new ForwarderInitializer());
