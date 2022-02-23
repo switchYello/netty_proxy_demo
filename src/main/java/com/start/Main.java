@@ -1,7 +1,6 @@
 package com.start;
 
 
-import com.proxy.forwarder.ForwarderInitializer;
 import com.proxy.httpProxy.HttpProxyInitializer;
 import com.proxy.socks.SocksProxyInitializer;
 import com.utils.SuccessFutureListener;
@@ -11,6 +10,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,26 +21,9 @@ public class Main {
     private static EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     private static EventLoopGroup workGroup = new NioEventLoopGroup(1);
 
-    public static void main(String[] args) {
-        testForwardProxy();
-    }
 
-    static void testForwardProxy() {
-        String localHost = "127.0.0.1";
-        int localPort = 1080;
-        ServerBootstrap b = new ServerBootstrap();
-        b.group(bossGroup, workGroup)
-                .channel(NioServerSocketChannel.class)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.AUTO_READ, false)
-                .childHandler(new ForwarderInitializer());
-        ChannelFuture f = b.bind(localHost, localPort);
-        f.channel().closeFuture().addListener(new SuccessFutureListener<Void>() {
-            @Override
-            public void operationComplete0(Void future) {
-                log.info("service server close");
-            }
-        });
+    public static void main(String[] args) {
+        testSocks4_5();
     }
 
     static void testSocks4_5() {

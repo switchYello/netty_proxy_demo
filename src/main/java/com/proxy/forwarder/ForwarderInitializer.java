@@ -1,5 +1,6 @@
 package com.proxy.forwarder;
 
+import com.config.ForwardConfig;
 import com.handlers.TimeoutHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -13,13 +14,20 @@ import io.netty.handler.logging.LoggingHandler;
  */
 public class ForwarderInitializer extends ChannelInitializer<Channel> {
 
+    private String toHost;
+    private int toPort;
+
+    public ForwarderInitializer(ForwardConfig config) {
+        this.toHost = config.getToHost();
+        this.toPort = config.getToPort();
+    }
+
     @Override
     protected void initChannel(Channel ch) {
         ChannelPipeline p = ch.pipeline();
         p.addLast(new TimeoutHandler(30, 30, 0));
         p.addLast(new LoggingHandler("Forwarder客户端请求流"));
-        p.addLast(new ForwarderService("www.bilibili.com", 80));
+        p.addLast(new ForwarderService(toHost, toPort));
     }
-
 
 }

@@ -40,10 +40,10 @@ public class TransferHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         if (!outChannel.isActive()) {
             ReferenceCountUtil.release(msg);
+            return;
         }
         outChannel.writeAndFlush(msg).addListener(future -> {
             if (!future.isSuccess()) {
-                ReferenceCountUtil.release(msg);
                 ctx.close();
                 outChannel.close();
             }
@@ -62,6 +62,6 @@ public class TransferHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.debug("", cause);
+        log.error("", cause);
     }
 }
