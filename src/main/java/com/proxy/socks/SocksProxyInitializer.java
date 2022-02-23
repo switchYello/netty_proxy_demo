@@ -9,7 +9,7 @@ import io.netty.handler.codec.socksx.SocksPortUnificationServerHandler;
 public class SocksProxyInitializer extends ChannelInitializer<Channel> {
 
     @Override
-    protected void initChannel(Channel ch) throws Exception {
+    protected void initChannel(Channel ch) {
         ChannelPipeline p = ch.pipeline();
         p.addLast(new TimeoutHandler(30, 30, 0));
         //判断socks协议版本，添加相应的hander

@@ -8,10 +8,13 @@ import io.netty.resolver.ResolvedAddressTypes;
 import io.netty.resolver.dns.DnsNameResolver;
 import io.netty.resolver.dns.DnsNameResolverBuilder;
 import io.netty.resolver.dns.DnsServerAddressStreamProvider;
+import io.netty.resolver.dns.MultiDnsServerAddressStreamProvider;
 import io.netty.resolver.dns.SingletonDnsServerAddressStreamProvider;
 import io.netty.util.concurrent.EventExecutor;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 异步dns解析
@@ -38,7 +41,14 @@ public class AsnycDns extends AddressResolverGroup {
     }
 
     private DnsServerAddressStreamProvider pro() {
-        return new SingletonDnsServerAddressStreamProvider(new InetSocketAddress("8.8.8.8", 53));
+        SingletonDnsServerAddressStreamProvider dns114 = new SingletonDnsServerAddressStreamProvider(new InetSocketAddress("114.114.114.114", 53));
+        SingletonDnsServerAddressStreamProvider dns8888 = new SingletonDnsServerAddressStreamProvider(new InetSocketAddress("8.8.8.8", 53));
+        SingletonDnsServerAddressStreamProvider dns8844 = new SingletonDnsServerAddressStreamProvider(new InetSocketAddress("8.8.4.4", 53));
+        List<DnsServerAddressStreamProvider> list = new ArrayList<>();
+        list.add(dns114);
+        list.add(dns8888);
+        list.add(dns8844);
+        return new MultiDnsServerAddressStreamProvider(list);
     }
 
     private void assertTrue(boolean instance, String msg) {

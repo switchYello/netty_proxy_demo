@@ -1,7 +1,6 @@
 package com.start;
 
-
-import com.proxy.httpProxy.HttpProxyInitializer;
+import com.proxy.socks.SocksProxyInitializer;
 import com.utils.SuccessFutureListener;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -12,32 +11,30 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Main {
+/**
+ * @author hcy
+ * @since 2022/2/23 19:00
+ */
+public class StartSockProxy {
 
-    private static Logger log = LoggerFactory.getLogger(Main.class);
+    private static Logger log = LoggerFactory.getLogger(StartSockProxy.class);
 
     private static EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     private static EventLoopGroup workGroup = new NioEventLoopGroup(1);
 
-
     public static void main(String[] args) {
-        startHttpProxy();
+        startSocksProxy();
     }
 
-    static void startHttpProxy() {
+    static void startSocksProxy() {
         String localHost = "127.0.0.1";
         int localPort = 1080;
 
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_RCVBUF, 128 * 1024)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 6000)
-                .childOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 6000)
-                .childOption(ChannelOption.SO_RCVBUF, 128 * 1024)
-                .childOption(ChannelOption.SO_LINGER, 1)
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .childHandler(new HttpProxyInitializer());
+                .childHandler(new SocksProxyInitializer());
         ChannelFuture f = b.bind(localHost, localPort);
         f.channel().closeFuture().addListener(new SuccessFutureListener<Void>() {
             @Override

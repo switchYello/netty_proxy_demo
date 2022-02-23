@@ -62,6 +62,6 @@ public class TransferHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("", cause);
+        log.error("转换报错", cause);
     }
 }
