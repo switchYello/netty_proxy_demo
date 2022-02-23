@@ -36,13 +36,15 @@ public class ForwarderService extends ChannelInboundHandlerAdapter {
     public void channelActive(final ChannelHandlerContext ctx) {
         ChannelFuture promise = createPromise(InetSocketAddress.createUnresolved(remoteHost, remotePort), ctx);
         promise.addListener((ChannelFutureListener) future -> {
-            if (future.isSuccess()) {
+            Channel remoteConnection = future.channel();
+            if (future.isSuccess() && ctx.channel().isOpen()) {
                 log.debug("Forwarder客户端请求连接到服务器 {}:{}", remoteHost, remotePort);
-                ctx.pipeline().replace(ctx.name(), null, new TransferHandler(future.channel()));
+                ctx.pipeline().replace(ctx.name(), null, new TransferHandler(remoteConnection));
                 ctx.channel().config().setAutoRead(true);
             } else {
                 log.debug("Forwarder连接服务器失败:", future.cause());
                 ctx.close();
+                remoteConnection.close();
             }
         });
     }
