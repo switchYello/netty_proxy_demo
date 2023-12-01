@@ -5,6 +5,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.resolver.AddressResolver;
 import io.netty.resolver.AddressResolverGroup;
 import io.netty.resolver.ResolvedAddressTypes;
+import io.netty.resolver.dns.DefaultDnsServerAddressStreamProvider;
 import io.netty.resolver.dns.DnsNameResolver;
 import io.netty.resolver.dns.DnsNameResolverBuilder;
 import io.netty.resolver.dns.DnsServerAddressStreamProvider;
@@ -43,11 +44,10 @@ public class AsnycDns extends AddressResolverGroup {
     private DnsServerAddressStreamProvider pro() {
         SingletonDnsServerAddressStreamProvider dns114 = new SingletonDnsServerAddressStreamProvider(new InetSocketAddress("114.114.114.114", 53));
         SingletonDnsServerAddressStreamProvider dns8888 = new SingletonDnsServerAddressStreamProvider(new InetSocketAddress("8.8.8.8", 53));
-        SingletonDnsServerAddressStreamProvider dns8844 = new SingletonDnsServerAddressStreamProvider(new InetSocketAddress("8.8.4.4", 53));
         List<DnsServerAddressStreamProvider> list = new ArrayList<>();
         list.add(dns114);
         list.add(dns8888);
-        list.add(dns8844);
+        list.add(DefaultDnsServerAddressStreamProvider.INSTANCE);
         return new MultiDnsServerAddressStreamProvider(list);
     }
 

@@ -41,8 +41,9 @@ public class ForwarderService extends ChannelInboundHandlerAdapter {
                 log.debug("Forwarder客户端请求连接到服务器 {}:{}", remoteHost, remotePort);
                 ctx.pipeline().replace(ctx.name(), null, new TransferHandler(remoteConnection));
                 ctx.channel().config().setAutoRead(true);
+                remoteConnection.config().setAutoRead(true);
             } else {
-                log.debug("Forwarder连接服务器失败:", future.cause());
+                log.error("Forwarder连接服务器失败:", future.cause());
                 ctx.close();
                 remoteConnection.close();
             }
@@ -53,10 +54,11 @@ public class ForwarderService extends ChannelInboundHandlerAdapter {
         Bootstrap b = new Bootstrap();
         return b.group(ctx.channel().eventLoop())
                 .channel(NioSocketChannel.class)
-                .resolver(AsnycDns.INSTANCE)
+                //.resolver(AsnycDns.INSTANCE)
                 .remoteAddress(address)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .option(ChannelOption.SO_RCVBUF, 128 * 1024)
+                .option(ChannelOption.AUTO_READ, false)
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel channel) {

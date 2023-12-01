@@ -48,7 +48,7 @@
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <finalName>demo</finalName>
+                    <finalName>forward</finalName>
                     <archive>
                         <manifest>
                             <mainClass>com.start.StartForwardProxy</mainClass>
