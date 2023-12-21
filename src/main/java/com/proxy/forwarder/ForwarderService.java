@@ -63,7 +63,7 @@ public class ForwarderService extends ChannelInboundHandlerAdapter {
                     @Override
                     protected void initChannel(Channel channel) {
                         ChannelPipeline p = channel.pipeline();
-                        p.addLast(new TimeoutHandler(30, 30, 0));
+                        p.addLast(new TimeoutHandler(300, 300, 0));
                         p.addLast(new LoggingHandler("Forwarder服务器连接流"));
                         p.addLast(new TransferHandler(ctx.channel()));
                     }

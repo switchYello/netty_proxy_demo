@@ -25,7 +25,7 @@ public class ForwarderInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel ch) {
         ChannelPipeline p = ch.pipeline();
-        p.addLast(new TimeoutHandler(30, 30, 0));
+        p.addLast(new TimeoutHandler(300, 300, 0));
         p.addLast(new LoggingHandler("Forwarder客户端请求流"));
         p.addLast(new ForwarderService(toHost, toPort));
     }
