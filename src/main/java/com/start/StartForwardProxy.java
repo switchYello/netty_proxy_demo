@@ -17,6 +17,10 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author hcy
  * @since 2022/2/23 16:26
@@ -30,26 +34,34 @@ public class StartForwardProxy {
 
     private static Options OPTIONS = new Options();
 
-
-    public static void main(String[] args) {
-        OPTIONS.addOption(Option.builder("f").required().hasArg(true).type(String.class).desc("the host of from").build());
-        OPTIONS.addOption(Option.builder("t").required().hasArg(true).type(String.class).desc("the host of to").build());
-        try {
+    public static void main(String[] args) throws ParseException {
+        List<String> flist = new ArrayList<>();
+        List<String> tlist = new ArrayList<>();
+        String fEnv = System.getenv("FORWARD_FROM");
+        String tEnv = System.getenv("FORWARD_TO");
+        if (fEnv != null && tEnv != null) {
+            String[] fs = fEnv.split(" ");
+            String[] ts = tEnv.split(" ");
+            Collections.addAll(flist, fs);
+            Collections.addAll(tlist, ts);
+        } else {
+            OPTIONS.addOption(Option.builder("f").required().hasArg(true).type(String.class).desc("the host of from").build());
+            OPTIONS.addOption(Option.builder("t").required().hasArg(true).type(String.class).desc("the host of to").build());
             CommandLine parse = new DefaultParser().parse(OPTIONS, args);
             String[] fs = parse.getOptionValues("f");
             String[] ts = parse.getOptionValues("t");
-            for (int i = 0; i < fs.length && i < ts.length; i++) {
-                String[] f = fs[i].split(":");
-                String[] t = ts[i].split(":");
-                ForwardConfig config = new ForwardConfig();
-                config.setFromHost(f[0]);
-                config.setFromPort(Integer.parseInt(f[1]));
-                config.setToHost(t[0]);
-                config.setToPort(Integer.parseInt(t[1]));
-                startForwardProxy(config);
-            }
-        } catch (ParseException e) {
-            System.exit(0);
+            Collections.addAll(flist, fs);
+            Collections.addAll(tlist, ts);
+        }
+        for (int i = 0; i < flist.size() && i < tlist.size(); i++) {
+            String[] f = flist.get(i).split(":");
+            String[] t = tlist.get(i).split(":");
+            ForwardConfig config = new ForwardConfig();
+            config.setFromHost(f[0]);
+            config.setFromPort(Integer.parseInt(f[1]));
+            config.setToHost(t[0]);
+            config.setToPort(Integer.parseInt(t[1]));
+            startForwardProxy(config);
         }
     }
 
